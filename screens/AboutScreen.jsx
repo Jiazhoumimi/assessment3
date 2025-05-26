@@ -1,3 +1,5 @@
+// introduce this app
+
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { useThemeMode } from '../context/ThemeContext';

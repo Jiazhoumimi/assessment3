@@ -1,3 +1,5 @@
+// Login Screen
+
 import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,7 +13,7 @@ import CustomButton from '../components/CustomButton';
 import AuthLayout from '../components/AuthLayout';
 
 // Notification service
-import { sendLoginSuccessNotification } from '../services/notifications'; // ✅ import login success notification
+import { sendLoginSuccessNotification } from '../services/notifications'; 
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');

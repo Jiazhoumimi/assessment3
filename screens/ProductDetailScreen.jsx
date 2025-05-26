@@ -1,3 +1,6 @@
+// Product Detail Page
+// Just make one to show specific item as an example
+
 import React, { useEffect, useState } from 'react';
 import {
   View,

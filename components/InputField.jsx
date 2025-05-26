@@ -1,4 +1,7 @@
 // components/InputField.jsx
+// for login and register page
+
+
 import React from 'react';
 import { TextInput, StyleSheet } from 'react-native';
 

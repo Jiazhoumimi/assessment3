@@ -1,10 +1,16 @@
 // components/CustomTabBarButton.jsx
+// This custom tab bar button displays a floating shopping bag icon for cart.
+
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useCart } from '../context/CartContext'; // Import cart context
 
 export default function CustomTabBarButton({ onPress }) {
-  const cartCount = 4; // TODO: Replace with dynamic state from context or AsyncStorage
+  const { cartItems } = useCart(); // Access cart data from context
+
+  // Calculate total item count in cart (not just unique types)
+  const cartCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
 
   return (
     <TouchableOpacity
@@ -14,6 +20,8 @@ export default function CustomTabBarButton({ onPress }) {
     >
       <View style={styles.iconWrapper}>
         <Ionicons name="bag-outline" size={26} color="#fff" />
+        
+        {/* Show badge only if cart is not empty */}
         {cartCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{cartCount}</Text>
@@ -27,7 +35,7 @@ export default function CustomTabBarButton({ onPress }) {
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    top: -18,
+    top: -18, // Raise button slightly above tab bar
     justifyContent: 'center',
     alignItems: 'center',
   },

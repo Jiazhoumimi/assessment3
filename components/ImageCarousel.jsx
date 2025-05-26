@@ -1,3 +1,5 @@
+// for homepage decoration
+
 import React, { useState, useRef } from 'react';
 import {
   FlatList,

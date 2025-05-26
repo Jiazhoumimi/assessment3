@@ -1,11 +1,15 @@
+// headerbar navigation
+// show username, setting icon, cart icon.
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode } from '../context/ThemeContext';
 import { getHeaderBarStyles } from '../styles/HeaderBarStyles';
+import { useCart } from '../context/CartContext'; // import cart context
 
 export default function HeaderBar() {
   const [username, setUsername] = useState('');
@@ -13,6 +17,9 @@ export default function HeaderBar() {
   const { isDarkMode } = useThemeMode();
   const styles = getHeaderBarStyles(isDarkMode);
   const iconColor = isDarkMode ? '#fff' : '#333';
+
+  const { cartItems } = useCart(); // access cart data
+  const cartCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0); // ✅ total count
 
   useEffect(() => {
     (async () => {
@@ -35,13 +42,22 @@ export default function HeaderBar() {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {/* Cart with badge */}
           <TouchableOpacity
             onPress={() => navigation.navigate('AppTabs', { screen: 'Cart' })}
             style={{ marginRight: 16 }}
           >
-            <Ionicons name="cart-outline" size={24} color={iconColor} />
+            <View>
+              <Ionicons name="cart-outline" size={24} color={iconColor} />
+              {cartCount > 0 && (
+                <View style={badgeStyles.badge}>
+                  <Text style={badgeStyles.badgeText}>{cartCount}</Text>
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
 
+          {/* Settings */}
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="settings-outline" size={25} color={iconColor} />
           </TouchableOpacity>
@@ -50,3 +66,24 @@ export default function HeaderBar() {
     </SafeAreaView>
   );
 }
+
+// ✅ Badge styles
+const badgeStyles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    backgroundColor: '#ff3b30',
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});

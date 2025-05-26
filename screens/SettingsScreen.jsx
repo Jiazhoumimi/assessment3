@@ -1,7 +1,7 @@
 // screens/SettingsScreen.jsx
+
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View,
   Text,
   Switch,
   StatusBar,

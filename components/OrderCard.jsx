@@ -1,3 +1,6 @@
+// show brief order information
+
+
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { formatDistanceToNow } from 'date-fns';

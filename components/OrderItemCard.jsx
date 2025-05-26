@@ -1,4 +1,5 @@
 // components/OrderItemCard.jsx
+// this is imported by ProductListContainer
 
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';

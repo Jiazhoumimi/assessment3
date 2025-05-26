@@ -1,4 +1,5 @@
 // components/SearchBar.jsx
+// have not implement yet
 
 import React from 'react';
 import { View, TextInput } from 'react-native';

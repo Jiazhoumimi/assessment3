@@ -1,3 +1,6 @@
+// CategoryTabs.jsx
+// this component is category tabs for productscreen for browsing.
+
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { getCategoryTabStyles } from '../styles/CategoryTabsStyles';

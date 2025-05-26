@@ -1,8 +1,11 @@
+// display order detail informtaion like whitefox app
+// implement edit function
+
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { getOrderDetailStyles } from '../styles/OrderDetailStyles';
-import { Ionicons } from '@expo/vector-icons'; // ✅ Icon
-import * as Clipboard from 'expo-clipboard';   // ✅ Clipboard API
+import { Ionicons } from '@expo/vector-icons'; // Icon
+import * as Clipboard from 'expo-clipboard';   // Clipboard API
 
 export default function OrderDetailCard({ order, isDarkMode }) {
   const styles = getOrderDetailStyles(isDarkMode);

@@ -1,3 +1,5 @@
+// button for sorting price on ProductScreen
+
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { ArrowDown, ArrowUp } from 'lucide-react-native';

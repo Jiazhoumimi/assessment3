@@ -1,3 +1,8 @@
+// components/CustomButton.jsx
+// This is a reusable button component.
+// For login/ register/ checkout/ add to bag/ log out button.
+
+
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
 

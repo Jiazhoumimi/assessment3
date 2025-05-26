@@ -1,3 +1,6 @@
+// decoration for homepage
+// can view products by category
+
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import styles from '../styles/CardStyles'; 

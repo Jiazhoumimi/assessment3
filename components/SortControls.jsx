@@ -1,4 +1,5 @@
 // components/SortControls.jsx
+// this component is for productscreen sorting by price function
 
 import React from 'react';
 import { View, Text } from 'react-native';
@@ -6,7 +7,7 @@ import SortChipButton from './SortChipButton';
 
 export default function SortControls({ sortOrder, setSortOrder, isDarkMode }) {
   return (
-    <View style={{ paddingHorizontal: 16, marginTop: 6, marginBottom: 6 }}>
+    <View style={{ paddingHorizontal: 16, marginTop: 6, marginBottom: 20 }}>
       <Text
         style={{
           color: isDarkMode ? '#aaa' : '#444',

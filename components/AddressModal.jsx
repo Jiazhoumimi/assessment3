@@ -1,3 +1,5 @@
+// pop out when checking out - need to fill the address
+
 import React from 'react';
 import {
   Modal,

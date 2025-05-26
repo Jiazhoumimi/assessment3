@@ -1,3 +1,5 @@
+// Profile Page
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,6 +14,8 @@ import { useThemeMode } from '../context/ThemeContext';
 import { getProfileStyles } from '../styles/ProfileStyles';
 import CustomButton from '../components/CustomButton';
 import ProfileItem from '../components/ProfileItem';
+import { fetchAllUsers } from '../services/api/user'; // ✅ Load all users
+import { getMyOrders } from '../services/api/order';   // ✅ Load all orders
 
 export default function ProfileScreen() {
   const { isDarkMode } = useThemeMode();
@@ -28,19 +32,14 @@ export default function ProfileScreen() {
   const [orderCount, setOrderCount] = useState(0);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchProfileData = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
         const userId = await AsyncStorage.getItem('userId');
 
-        const userRes = await fetch('https://n11501910.ifn666.com/assessment02/users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const userData = await userRes.json();
-        const matchedUser = userData.find((u) => u._id === userId);
+        // ✅ Load and match user data
+        const allUsers = await fetchAllUsers(token);
+        const matchedUser = allUsers.find((u) => u._id === userId);
 
         if (matchedUser) {
           setUserData({
@@ -51,14 +50,9 @@ export default function ProfileScreen() {
           });
         }
 
-        const orderRes = await fetch('https://n11501910.ifn666.com/assessment02/orders', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const orderJson = await orderRes.json();
-        const orders = orderJson.data || [];
-        const userOrders = orders.filter((o) => o.user?._id === userId);
+        // ✅ Load and filter user-specific orders
+        const allOrders = await getMyOrders(token);
+        const userOrders = allOrders.filter((o) => o.user?._id === userId);
         setOrderCount(userOrders.length);
 
       } catch (error) {
@@ -66,7 +60,7 @@ export default function ProfileScreen() {
       }
     };
 
-    fetchUser();
+    fetchProfileData();
   }, []);
 
   const formatDate = (isoString) => {

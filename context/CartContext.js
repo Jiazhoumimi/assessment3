@@ -1,9 +1,40 @@
-import React, { createContext, useContext, useState } from 'react';
+// CartContext.js
+// Provides a global shopping cart with persistent storage.
+// Allows users to keep cart items after logging out.
+
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState({}); // Format: { productId: quantity }
+
+  // ✅ Load cart from AsyncStorage on first mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const storedCart = await AsyncStorage.getItem('cartItems');
+        if (storedCart) {
+          setCartItems(JSON.parse(storedCart));
+        }
+      } catch (err) {
+        console.error('❌ Failed to load cart from storage:', err);
+      }
+    })();
+  }, []);
+
+  // 💾 Save cart to AsyncStorage whenever it changes
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem('cartItems', JSON.stringify(cartItems));
+      } catch (err) {
+        console.error('❌ Failed to save cart to storage:', err);
+      }
+    })();
+  }, [cartItems]);
 
   // ✅ Add or merge items to cart
   const addToCart = (newItems) => {
@@ -16,7 +47,7 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // ✅ Remove an item completely
+  // ❌ Remove one item completely
   const removeFromCart = (productId) => {
     setCartItems((prev) => {
       const updated = { ...prev };
@@ -25,13 +56,12 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // ✅ Update quantity for one item (+ / -)
+  // ✅ Update quantity for a single item (+ / -)
   const updateCartQuantity = (productId, delta) => {
     setCartItems((prev) => {
       const currentQty = prev[productId] || 0;
       const newQty = currentQty + delta;
 
-      // If quantity is 0 or less, remove item
       if (newQty <= 0) {
         const updated = { ...prev };
         delete updated[productId];
@@ -45,8 +75,11 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // ✅ Clear all items
-  const clearCart = () => setCartItems({});
+  // ✅ Clear all items from cart
+  const clearCart = async () => {
+    setCartItems({});
+    await AsyncStorage.removeItem('cartItems'); // ✅ Also clear from storage
+  };
 
   return (
     <CartContext.Provider

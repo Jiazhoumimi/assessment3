@@ -1,4 +1,6 @@
 // components/OrderSummaryBar.jsx
+// this is in the cart page, for caculating the total price.
+
 import React from 'react';
 import { View, Text } from 'react-native';
 import { getOrderSummaryBarStyles } from '../styles/OrderSummaryBarStyles';

@@ -105,7 +105,7 @@ export default function CartScreen() {
 
       await sendOrderSuccessNotification(data.data._id);
 
-      Alert.alert('Success', `Order #${data.data._id} placed successfully!`, [
+      Alert.alert('Order Confirmed', `Order #${data.data._id} is comfimed!`, [
         {
           text: 'OK',
           onPress: () => {

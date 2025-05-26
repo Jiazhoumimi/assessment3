@@ -1,3 +1,5 @@
+// Register Page
+
 import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

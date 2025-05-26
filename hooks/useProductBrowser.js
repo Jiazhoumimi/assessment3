@@ -1,3 +1,7 @@
+// useProductBrowser.js
+// This hook retrieves a product list for browsing.
+// Supports category filter, price sorting, and infinite scroll.
+
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
@@ -9,10 +13,10 @@ export default function useProductBrowser(selectedCategory, sortOrder = null) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const debounceTimeout = useRef(null);
-  const requestLock = useRef(false);
+  const debounceTimeout = useRef(null); // For debounce delay
+  const requestLock = useRef(false); // Prevent duplicate requests
 
-  // ✅ Fetch product list (with pagination and sorting)
+  // Fetch product list with pagination, category, and sort options
   const fetchProducts = async (targetPage = 1, sort = sortOrder) => {
     if (requestLock.current || loading) return;
 
@@ -21,23 +25,25 @@ export default function useProductBrowser(selectedCategory, sortOrder = null) {
       setLoading(true);
 
       const params = { page: targetPage, limit: 6 };
-      if (selectedCategory) params.category = selectedCategory;
-      if (sort) params.sort = sort;
+      if (selectedCategory) params.category = selectedCategory; // 🗂️ Filter by category
+      if (sort) params.sort = sort; // ↕️ Sort by price
 
       const res = await axios.get(BASE_URL, { params });
       const newProducts = res.data.products || [];
       const isFirstPage = targetPage === 1;
 
       if (isFirstPage) {
-        setProducts([]); // ✅ Clear old data before replacing
+        setProducts([]); // 🧹 Clear previous results if refreshing
       }
 
+      // 📦 Append or replace product list
       setProducts((prev) =>
         isFirstPage ? newProducts : [...prev, ...newProducts]
       );
+
       setPage(targetPage);
-      setHasMore(targetPage < res.data.totalPages);
-      setTotalCount(res.data.total || 0);
+      setHasMore(targetPage < res.data.totalPages); // Check if more data exists
+      setTotalCount(res.data.total || 0); // Total products count
 
       console.log(`[FETCH] Page ${targetPage}, Sort: ${sort}, Items: ${newProducts.length}`);
     } catch (err) {
@@ -50,18 +56,18 @@ export default function useProductBrowser(selectedCategory, sortOrder = null) {
     }
   };
 
-  // ✅ Watch category/sort change → refetch from page 1
+  // Refetch when category or sort changes (with debounce)
   useEffect(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = setTimeout(() => {
-      fetchProducts(1, sortOrder);
-    }, 400); // slight delay for smoothness
+      fetchProducts(1, sortOrder); // Reset to page 1
+    }, 400); // ⏱ Smooth transition
 
     return () => clearTimeout(debounceTimeout.current);
   }, [selectedCategory, sortOrder]);
 
-  // ✅ First load
+  // Initial load
   useEffect(() => {
     fetchProducts(1, sortOrder);
   }, []);
@@ -73,6 +79,6 @@ export default function useProductBrowser(selectedCategory, sortOrder = null) {
     hasMore,
     loading,
     setPage,
-    fetchProducts,
+    fetchProducts, // For manual pagination
   };
 }

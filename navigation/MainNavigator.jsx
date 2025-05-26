@@ -9,7 +9,7 @@ import { CartProvider } from '../context/CartContext';
 import { ThemeProvider } from '../context/ThemeContext';
 
 // Notification Setup
-import { setupNotificationHandler } from '../services/notifications'; // ✅ Initialize notification system
+import { setupNotificationHandler } from '../services/notifications'; // Initialize notification system
 
 // Screens
 import SplashScreen from '../screens/SplashScreen';

@@ -1,3 +1,5 @@
+// fill the address when checking out
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
