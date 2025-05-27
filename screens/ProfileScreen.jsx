@@ -14,8 +14,8 @@ import { useThemeMode } from '../context/ThemeContext';
 import { getProfileStyles } from '../styles/ProfileStyles';
 import CustomButton from '../components/CustomButton';
 import ProfileItem from '../components/ProfileItem';
-import { fetchAllUsers } from '../services/api/user'; // ✅ Load all users
-import { getMyOrders } from '../services/api/order';   // ✅ Load all orders
+import { fetchAllUsers } from '../services/api/user'; // Load all users
+import { getMyOrders } from '../services/api/order';   // Load all orders
 
 export default function ProfileScreen() {
   const { isDarkMode } = useThemeMode();
