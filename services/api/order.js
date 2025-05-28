@@ -1,20 +1,10 @@
-// services/api/order.js
-import axios from 'axios';
-const ORDER_URL = 'https://n11501910.ifn666.com/assessment02/orders';
+import { API_BASE_URL } from '@env';
 
-//  Create a new order
-export const createOrder = async (orderData, token) => {
-  const res = await axios.post(ORDER_URL, orderData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return res.data;
-};
-
-//  Submit order (used when building manually)
+/**
+ * Submit an order to backend API.
+ */
 export const submitOrder = async ({ token, userId, products, total, address }) => {
-  const response = await fetch(ORDER_URL, {
+  const response = await fetch(`${API_BASE_URL}/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -28,36 +18,83 @@ export const submitOrder = async ({ token, userId, products, total, address }) =
     }),
   });
 
-  if (!response.ok) throw new Error('Order submission failed');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Order submission failed');
+  }
+
   return await response.json();
 };
 
-//  Get all orders for the logged-in user
-export const getMyOrders = async (token) => {
-  const res = await axios.get(ORDER_URL, {
+/**
+ * Get all orders for the current user.
+ */
+export const getOrders = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/orders/mine`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return Array.isArray(res.data?.data) ? res.data.data : [];
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch orders');
+  }
+
+  return await response.json();
 };
 
-//  Get a specific order by ID
+/**
+ * Get a single order by ID.
+ */
 export const getOrderById = async (id, token) => {
-  const res = await axios.get(`${ORDER_URL}/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return res.data;
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch order details');
+  }
+
+  return await response.json();
 };
 
-//  Update an order
-export const updateOrder = async (id, updatedData, token) => {
-  const res = await axios.put(`${ORDER_URL}/${id}`, updatedData, {
+/**
+ * Update order status or address (PATCH).
+ */
+export const updateOrder = async (id, updates, token) => {
+  const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to update order');
+  }
+
+  return await response.json();
+};
+
+/**
+ * Delete (cancel) an order.
+ */
+export const deleteOrder = async (id, token) => {
+  const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+    method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return res.data;
+
+  if (!response.ok) {
+    throw new Error('Failed to delete order');
+  }
+
+  return await response.json();
 };

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from '../styles/LoginStyles';
 import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from '@env'; // ✅ API
 
 // Reusable components
 import InputField from '../components/InputField';
@@ -43,7 +44,8 @@ export default function RegisterScreen() {
     }
 
     try {
-      const response = await axios.post('https://n11501910.ifn666.com/assessment02/auth/register', {
+      // ✅ API auth register
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, {
         name,
         email,
         password,
@@ -92,7 +94,6 @@ export default function RegisterScreen() {
         onPress={handleRegister}
       />
 
-      {/* Bottom login prompt */}
       <View style={{ marginTop: 24, flexDirection: 'row', justifyContent: 'center' }}>
         <Text style={styles.linkText}>Already have an account? </Text>
         <Text

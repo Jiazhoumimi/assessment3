@@ -53,7 +53,7 @@ export default function SettingsScreen() {
         const totalForce = Math.sqrt(data.x ** 2 + data.y ** 2 + data.z ** 2);
         const now = Date.now();
 
-        if (totalForce > 2.3 && now - lastShakeRef.current > 2000) {
+        if (totalForce > 1.6 && now - lastShakeRef.current > 2000) {
           lastShakeRef.current = now;
           toggleTheme();
         }

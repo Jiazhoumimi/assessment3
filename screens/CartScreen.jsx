@@ -1,3 +1,4 @@
+// Cart Screen
 import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,14 +13,15 @@ import AddressModal from '../components/AddressModal';
 import { sendOrderSuccessNotification } from '../services/notifications';
 
 import useCartProducts from '../hooks/useCartProducts';
-import { getProductScreenStyles } from '../styles/ProductScreenStyles';
+import { getCartStyles } from '../styles/CartStyles'; 
+import { submitOrder } from '../services/api/order'; // use API wrapper
 
 export default function CartScreen() {
   const { isDarkMode } = useThemeMode();
-  const styles = getProductScreenStyles(isDarkMode);
+  const styles = getCartStyles(isDarkMode); 
   const navigation = useNavigation();
 
-  // Cart context
+  // Get cart state and functions from context
   const {
     cartItems,
     updateCartQuantity,
@@ -27,7 +29,6 @@ export default function CartScreen() {
     clearCart,
   } = useCart();
 
-  // Pull all product IDs from cart
   const cartProductIds = Object.keys(cartItems);
   const { products: cartProducts, loading } = useCartProducts(cartProductIds);
 
@@ -40,7 +41,7 @@ export default function CartScreen() {
     country: 'Australia',
   });
 
-  // Filter matched products with quantity
+  // Filter products that exist in cart
   const cartProductList = cartProducts.filter((p) => cartItems[p._id]);
   const cartQuantities = Object.fromEntries(
     Object.entries(cartItems).filter(([id]) =>
@@ -59,7 +60,7 @@ export default function CartScreen() {
       Alert.alert('Cart is empty', 'Please add items before checkout.');
       return;
     }
-    setShowModal(true);
+    setShowModal(true); // Open address modal
   };
 
   const handleSubmitOrder = async () => {
@@ -82,34 +83,22 @@ export default function CartScreen() {
     }));
 
     try {
-      const res = await fetch('https://n11501910.ifn666.com/assessment02/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          user: userId,
-          products: productsToSubmit,
-          total,
-          shippingAddress: address,
-        }),
+      // ✅ Submit order using API wrapper
+      const data = await submitOrder({
+        token,
+        userId,
+        products: productsToSubmit,
+        total,
+        address,
       });
 
-      const data = await res.json();
+      await sendOrderSuccessNotification(data.data._id); // Notify user locally
 
-      if (!res.ok) {
-        Alert.alert('Order Failed', data?.message || 'Something went wrong.');
-        return;
-      }
-
-      await sendOrderSuccessNotification(data.data._id);
-
-      Alert.alert('Order Confirmed', `Order #${data.data._id} is comfimed!`, [
+      Alert.alert('Order Confirmed', `Order #${data.data._id} is confirmed!`, [
         {
           text: 'OK',
           onPress: () => {
-            clearCart();
+            clearCart(); // Clear cart after success
             setShowModal(false);
             navigation.navigate('Orders');
           },
@@ -117,7 +106,7 @@ export default function CartScreen() {
       ]);
     } catch (err) {
       console.error('❌ Order submission error:', err);
-      Alert.alert('Network Error', 'Unable to submit order. Try again later.');
+      Alert.alert('Order Failed', err.message || 'Unable to submit order.');
     }
   };
 
@@ -125,15 +114,13 @@ export default function CartScreen() {
     <View style={styles.container}>
       <HeaderBar />
 
-      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-        <Text style={{ fontSize: 20, fontWeight: '600', color: isDarkMode ? '#fff' : '#111' }}>
-          Shopping Bag
-        </Text>
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Shopping Bag</Text>
       </View>
 
       {cartProductList.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, color: isDarkMode ? '#888' : '#666' }}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
             The cart is empty.
           </Text>
         </View>

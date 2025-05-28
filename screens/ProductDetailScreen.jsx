@@ -20,7 +20,10 @@ import { useThemeMode } from '../context/ThemeContext';
 import { getProductDetailStyles } from '../styles/ProductDetailStyles';
 import AddressModal from '../components/AddressModal';
 import { sendOrderSuccessNotification } from '../services/notifications';
-import { useCart } from '../context/CartContext'; // Shopping cart context
+import { useCart } from '../context/CartContext';
+
+import { submitOrder } from '../services/api/order'; // use API wrapper
+import { API_BASE_URL } from '@env'; // Load API base URL from .env
 
 export default function ProductDetailScreen() {
   const [product, setProduct] = useState(null);
@@ -38,13 +41,13 @@ export default function ProductDetailScreen() {
   const { isDarkMode } = useThemeMode();
   const styles = getProductDetailStyles(isDarkMode);
   const navigation = useNavigation();
-  const { addToCart } = useCart(); // Get addToCart function from context
+  const { addToCart } = useCart();
 
-  // 🔁 Fetch product details on mount
+  // 🔁 Fetch product detail from API
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch('https://n11501910.ifn666.com/assessment02/products/6810eb982f5b9676d765d0fb');
+        const res = await fetch(`${API_BASE_URL}/products/6810eb982f5b9676d765d0fb`);
         const data = await res.json();
         setProduct(data);
       } catch (error) {
@@ -56,52 +59,37 @@ export default function ProductDetailScreen() {
     fetchProduct();
   }, []);
 
-  // 📤 Share product link
+  // 📤 Share button
   const handleShare = async () => {
     try {
       await Share.share({
         title: 'Check this product',
         message: `Check out this product: ${product.name} - $${product.price}`,
-        url: `https://n11501910.ifn666.com/assessment02/products/${product._id}`,
+        url: `${API_BASE_URL}/products/${product._id}`,
       });
     } catch (error) {
       console.error('Error sharing:', error);
     }
   };
 
-  // 🛒 Trigger address modal for direct purchase
+  // 🛒 Open address modal for "Buy Now"
   const handleBuyNow = () => {
     setShowModal(true);
   };
 
-  // ✅ Submit order to backend
+  // ✅ Submit order to backend (using wrapper)
   const handleSubmitOrder = async () => {
     const token = await AsyncStorage.getItem('token');
     const userId = await AsyncStorage.getItem('userId');
 
-    const payload = {
-      user: userId,
-      products: [{ product: product._id, quantity }],
-      total: product.price * quantity,
-      shippingAddress: address,
-    };
-
     try {
-      const res = await fetch('https://n11501910.ifn666.com/assessment02/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+      const result = await submitOrder({
+        token,
+        userId,
+        products: [{ product: product._id, quantity }],
+        total: product.price * quantity,
+        address,
       });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        Alert.alert('Order Failed', result?.message || 'Unknown error');
-        return;
-      }
 
       Alert.alert('Success', 'Order placed successfully!', [
         {
@@ -114,12 +102,11 @@ export default function ProductDetailScreen() {
         },
       ]);
     } catch (err) {
-      console.error('Network error:', err);
-      Alert.alert('Network Error', 'Please try again later.');
+      console.error('Order submission error:', err);
+      Alert.alert('Order Failed', err.message || 'Unknown error');
     }
   };
 
-  // ⏳ Show loading spinner
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -128,7 +115,6 @@ export default function ProductDetailScreen() {
     );
   }
 
-  // ❌ Handle missing product
   if (!product) {
     return (
       <View style={styles.loader}>
@@ -139,35 +125,35 @@ export default function ProductDetailScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* 🔙 Back Button */}
+      {/* 🔙 Back */}
       <View style={{ position: 'absolute', top: 60, left: 20, zIndex: 10 }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <AntDesign name="arrowleft" size={26} color={isDarkMode ? '#fff' : '#111'} />
         </TouchableOpacity>
       </View>
 
-      {/* 📤 Share Button */}
+      {/* 📤 Share */}
       <View style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
         <TouchableOpacity onPress={handleShare}>
           <Feather name="share" size={24} color={isDarkMode ? '#fff' : '#111'} />
         </TouchableOpacity>
       </View>
 
-      {/* 🖼️ Product Image */}
+      {/* 🖼️ Image */}
       <Image
         source={require('../assets/product-placeholder.jpeg')}
         style={styles.image}
         resizeMode="cover"
       />
 
-      {/* 📦 Product Info */}
+      {/* 📦 Info */}
       <View style={styles.details}>
         <Text style={styles.name}>{product.name}</Text>
         <Text style={styles.category}>Category: {product.category}</Text>
         <Text style={styles.price}>${product.price}</Text>
       </View>
 
-      {/* ➕➖ Quantity Selector */}
+      {/* ➕➖ Quantity */}
       <View style={styles.quantityWrapper}>
         <TouchableOpacity
           style={styles.quantityBtn}
@@ -184,7 +170,7 @@ export default function ProductDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 🧾 Buttons: Add to Bag + Buy Now */}
+      {/* 🧾 Buttons */}
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={styles.cartButton}
@@ -194,7 +180,6 @@ export default function ProductDetailScreen() {
               return;
             }
 
-            // ✅ Add to cart in object map format
             addToCart({ [product._id]: quantity });
 
             Alert.alert('Added to Bag', `${product.name} x${quantity} has been added.`);
@@ -210,7 +195,7 @@ export default function ProductDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 📮 Address Modal for Checkout */}
+      {/* 📮 Address Modal */}
       <AddressModal
         visible={showModal}
         address={address}

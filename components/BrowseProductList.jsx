@@ -36,6 +36,7 @@ export default function BrowseProductList({
     Alert.alert('Added to Cart', `${item.name} has been added to your bag.`);
   };
 
+  // Render single product card
   const renderItem = ({ item }) => {
     const card = (
       <View style={styles.card}>
@@ -44,6 +45,7 @@ export default function BrowseProductList({
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => handleAddToCart(item)}
+          activeOpacity={0.7}
         >
           <Ionicons name="add" size={16} color="#fff" />
         </TouchableOpacity>
@@ -52,7 +54,10 @@ export default function BrowseProductList({
 
     if (item._id === targetProductId) {
       return (
-        <TouchableOpacity onPress={() => navigation.navigate('ProductDetail', { id: item._id })}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProductDetail', { id: item._id })}
+          activeOpacity={0.7}
+        >
           {card}
         </TouchableOpacity>
       );
@@ -61,19 +66,25 @@ export default function BrowseProductList({
     }
   };
 
+  // Infinite scroll: load next page
   const handleEndReached = () => {
     if (!loading && hasMore) {
       fetchMore(page + 1, sortOrder);
     }
   };
 
+  // Handle empty result
   if (!products || products.length === 0) {
-    return <Text style={styles.emptyText}>No products found.</Text>;
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No products found.</Text>
+      </View>
+    );
   }
 
   return (
     <FlatList
-      data={products}
+      data={Array.from(new Map(products.map(p => [p._id, p])).values())} // ✅ remove duplicates by ID
       keyExtractor={(item) => item._id}
       renderItem={renderItem}
       contentContainerStyle={styles.container}

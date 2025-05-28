@@ -8,9 +8,8 @@ export const getOrderSummaryBarStyles = (isDarkMode) => StyleSheet.create({
 
   summaryBox: {
     padding: 16,
-    borderTopWidth: 1,
     borderColor: '#ddd',
-    backgroundColor: isDarkMode ? '#fcd7f7' : '#fff',
+    backgroundColor: isDarkMode ? '#F4ABC4' : '#fff',
   },
 
   subtotalText: {

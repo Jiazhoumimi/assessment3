@@ -18,17 +18,21 @@ import HeaderBar from '../components/HeaderBar';
 import OrderDetailCard from '../components/OrderDetailCard';
 import EditOrderModal from '../components/EditOrderModal';
 import { getOrderDetailStyles } from '../styles/OrderDetailStyles';
+import { API_BASE_URL } from '@env'; // Import API URL from .env
 
 export default function OrderDetailScreen() {
   const { isDarkMode } = useThemeMode();
   const navigation = useNavigation();
   const route = useRoute();
   const { order } = route.params;
+
+  // Local state to store current order and modal status
   const [currentOrder, setCurrentOrder] = useState(order);
   const [showEdit, setShowEdit] = useState(false);
 
   const styles = getOrderDetailStyles(isDarkMode);
 
+  // If order is missing, show fallback UI
   if (!currentOrder) {
     return (
       <View style={styles.container}>
@@ -37,14 +41,17 @@ export default function OrderDetailScreen() {
     );
   }
 
+  // Open edit modal
   const handleEdit = () => {
     setShowEdit(true);
   };
 
+  // Handle order update logic
   const handleUpdateOrder = async (updatedOrder) => {
     try {
       const token = await AsyncStorage.getItem('token');
 
+      // Construct updated order payload
       const fullUpdate = {
         ...updatedOrder,
         products: currentOrder.products.map(p => ({
@@ -54,17 +61,15 @@ export default function OrderDetailScreen() {
         total: currentOrder.total,
       };
 
-      const res = await fetch(
-        `https://n11501910.ifn666.com/assessment02/orders/${updatedOrder._id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(fullUpdate),
-        }
-      );
+      // ✅ Send update request
+      const res = await fetch(`${API_BASE_URL}/orders/${updatedOrder._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(fullUpdate),
+      });
 
       const result = await res.json();
 
@@ -73,7 +78,8 @@ export default function OrderDetailScreen() {
         return;
       }
 
-      const refresh = await fetch(`https://n11501910.ifn666.com/assessment02/orders/${updatedOrder._id}`, {
+      // ✅ Refresh updated order from server
+      const refresh = await fetch(`${API_BASE_URL}/orders/${updatedOrder._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,6 +93,8 @@ export default function OrderDetailScreen() {
       }
 
       setShowEdit(false);
+
+      // Show success message and navigate back to Orders screen
       Alert.alert('Success', 'Order has been updated successfully.', [
         {
           text: 'OK',
@@ -106,20 +114,22 @@ export default function OrderDetailScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Top header bar with title */}
       <HeaderBar title="Order Details" />
 
-      {/* Title Section */}
+      {/* Page title */}
       <View style={styles.titleWrapper}>
         <Text style={[styles.titleText, { color: isDarkMode ? '#fff' : '#111' }]}>
           Order Details
         </Text>
       </View>
 
-      {/* Main Content */}
+      {/* Main content section */}
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Show order details */}
         <OrderDetailCard order={currentOrder} isDarkMode={isDarkMode} />
 
-        {/* Edit Icon */}
+        {/* Edit button */}
         <View style={styles.iconButtonRow}>
           <TouchableOpacity onPress={handleEdit}>
             <Ionicons name="create-outline" size={28} color={isDarkMode ? '#fff' : '#000'} />
@@ -127,7 +137,7 @@ export default function OrderDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Edit Modal */}
+      {/* Edit order modal */}
       <EditOrderModal
         visible={showEdit}
         onClose={() => setShowEdit(false)}

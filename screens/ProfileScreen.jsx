@@ -10,12 +10,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { API_BASE_URL } from '@env'; // ✅ .env API import
+
 import { useThemeMode } from '../context/ThemeContext';
 import { getProfileStyles } from '../styles/ProfileStyles';
 import CustomButton from '../components/CustomButton';
 import ProfileItem from '../components/ProfileItem';
-import { fetchAllUsers } from '../services/api/user'; // Load all users
-import { getMyOrders } from '../services/api/order';   // Load all orders
 
 export default function ProfileScreen() {
   const { isDarkMode } = useThemeMode();
@@ -37,10 +38,12 @@ export default function ProfileScreen() {
         const token = await AsyncStorage.getItem('token');
         const userId = await AsyncStorage.getItem('userId');
 
-        // ✅ Load and match user data
-        const allUsers = await fetchAllUsers(token);
-        const matchedUser = allUsers.find((u) => u._id === userId);
+        // ✅ API users - Fetch all users and match current
+        const userRes = await axios.get(`${API_BASE_URL}/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        const matchedUser = userRes.data.find((u) => u._id === userId);
         if (matchedUser) {
           setUserData({
             name: matchedUser.name || 'User',
@@ -50,11 +53,14 @@ export default function ProfileScreen() {
           });
         }
 
-        // ✅ Load and filter user-specific orders
-        const allOrders = await getMyOrders(token);
-        const userOrders = allOrders.filter((o) => o.user?._id === userId);
-        setOrderCount(userOrders.length);
+        // ✅ API orders - Fetch all orders and filter for current user
+        const orderRes = await axios.get(`${API_BASE_URL}/orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        const orders = Array.isArray(orderRes.data.data) ? orderRes.data.data : [];
+        const userOrders = orders.filter((o) => o.user?._id === userId);
+        setOrderCount(userOrders.length);
       } catch (error) {
         console.error('Error loading profile:', error.message);
       }

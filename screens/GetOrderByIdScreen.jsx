@@ -14,6 +14,7 @@ import HeaderBar from '../components/HeaderBar';
 import CustomButton from '../components/CustomButton';
 import { useThemeMode } from '../context/ThemeContext';
 import { getOrderDetailStyles } from '../styles/OrderDetailStyles';
+import { API_BASE_URL } from '@env'; // ✅ .env API
 
 export default function GetOrderByIdScreen() {
   const { isDarkMode } = useThemeMode();
@@ -30,7 +31,7 @@ export default function GetOrderByIdScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch(`https://n11501910.ifn666.com/assessment02/orders/${orderId}`);
+      const res = await fetch(`${API_BASE_URL}/orders/${orderId}`); // ✅ API fetch order ID
       const json = await res.json();
 
       if (!res.ok || !json.success) {
