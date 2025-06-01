@@ -57,7 +57,7 @@ npx expo start
 ### 🌸 API Endpoints (Connected to Assessment 2 Backend)
 
 # Base URL:
-https://n11501910.ifn666.com/assessment02
+😍😍😍
 
 Feature	            Method	Endpoint	                Description
 Get all products	GET	    /products	                Supports pagination, category, sort
@@ -83,7 +83,7 @@ User login/register	POST	/auth/login, /auth/register	Authentication (JWT based)
 
 ### 🦋 Author
 
-Cecilia Sai Lo
+Cecilia Lo
 n11501910
 Version: 1.0.0
 IFN666 – QUT 2025
