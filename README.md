@@ -84,6 +84,6 @@ User login/register	POST	/auth/login, /auth/register	Authentication (JWT based)
 ### 🦋 Author
 
 Cecilia Lo
-n11501910
+n1150xxxx
 Version: 1.0.0
 IFN666 – QUT 2025
